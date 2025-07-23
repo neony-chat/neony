@@ -1,74 +1,60 @@
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
+const chatBox = document.querySelector(".chat-box");
+const input = document.querySelector("#user-input");
+const sendBtn = document.querySelector("#send-btn");
 
-// Load chat history from localStorage
-window.onload = () => {
-  const history = JSON.parse(localStorage.getItem("chatHistory")) || [];
-  history.forEach(({ sender, message }) => {
-    addMessage(sender, message);
-  });
-};
+let memory = JSON.parse(localStorage.getItem("neonyMemory")) || [];
 
-function addMessage(sender, message, isTyping = false) {
+function appendMessage(sender, text) {
   const bubble = document.createElement("div");
-  bubble.className = `bubble ${sender}`;
-  chat.appendChild(bubble);
+  bubble.classList.add("bubble", sender);
+  chatBox.appendChild(bubble);
 
-  if (isTyping) {
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < message.length) {
-        bubble.textContent += message.charAt(i);
-        chat.scrollTop = chat.scrollHeight;
-        i++;
-      } else {
-        clearInterval(interval);
-        saveMessage(sender, message);
-      }
-    }, 25);
-  } else {
-    bubble.textContent = message;
-    saveMessage(sender, message);
-  }
-
-  chat.scrollTop = chat.scrollHeight;
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      bubble.textContent += text.charAt(i);
+      i++;
+    } else {
+      clearInterval(interval);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  }, 25);
 }
 
-function saveMessage(sender, message) {
-  const history = JSON.parse(localStorage.getItem("chatHistory")) || [];
-  history.push({ sender, message });
-  localStorage.setItem("chatHistory", JSON.stringify(history));
-}
+function handleUserMessage() {
+  const userInput = input.value.trim();
+  if (!userInput) return;
 
-function sendMessage() {
-  const message = input.value.trim();
-  if (message === "") return;
-
-  addMessage("user", message);
+  appendMessage("user", userInput);
   input.value = "";
 
-  // Fake AI typing
-  const reply = getBotReply(message);
   setTimeout(() => {
-    addMessage("bot", reply, true);
+    const reply = getFakeResponse(userInput);
+    appendMessage("neony", reply);
+
+    memory.push({ you: userInput, neony: reply });
+    localStorage.setItem("neonyMemory", JSON.stringify(memory));
   }, 600);
 }
 
-function getBotReply(message) {
+function getFakeResponse(message) {
   const lower = message.toLowerCase();
-
-  if (lower.includes("hello") || lower.includes("hi")) {
-    return "Hey there! How can I help you today?";
-  } else if (lower.includes("who are you")) {
-    return "I'm Neony — your AI companion, always learning!";
-  } else if (lower.includes("bye")) {
-    return "Goodbye! Come back soon! 👋";
-  }
-
-  return "I'm still learning! Soon I'll be able to chat with real intelligence.";
+  if (lower.includes("hello")) return "Hey there! 😊";
+  if (lower.includes("name")) return "I’m Neony — your AI companion!";
+  if (lower.includes("how are you")) return "I’m glowing, thanks for asking!";
+  return "Hmm... I’m still learning. Let’s figure it out together!";
 }
 
-// Send on Enter key
-input.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendMessage();
+// Event Listeners
+sendBtn.addEventListener("click", handleUserMessage);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    handleUserMessage();
+  }
+});
+
+// Load previous memory
+memory.forEach((m) => {
+  appendMessage("user", m.you);
+  appendMessage("neony", m.neony);
 });
