@@ -1,84 +1,89 @@
-// Initialize Firebase
+// neony.js
+
+// Firebase Setup
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyCbe0rwBF18efdaOiVT4xAwdEm3DkPgeJI",
   authDomain: "neony-chat.firebaseapp.com",
   databaseURL: "https://neony-chat-default-rtdb.firebaseio.com",
   projectId: "neony-chat",
-  storageBucket: "neony-chat.firebasestorage.app",
+  storageBucket: "neony-chat.appspot.com",
   messagingSenderId: "1036357030418",
   appId: "1:1036357030418:web:498372ed01cc1f53d8becb",
   measurementId: "G-5GZJ4EJDKT"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const chatRef = db.ref("neony/messages");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const chatRef = ref(db, "neony/messages");
 
-const chatBox = document.getElementById("chat-box");
-const userInput = document.getElementById("user-input");
+const chatContainer = document.getElementById("chat-container");
+const inputField = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 
-function addMessage(text, sender) {
-  const bubble = document.createElement("div");
-  bubble.classList.add("bubble", sender);
-  bubble.innerText = text;
-  chatBox.appendChild(bubble);
-  chatBox.scrollTop = chatBox.scrollHeight;
+// Scroll to bottom
+function scrollToBottom() {
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-function saveMessage(sender, text) {
-  chatRef.push({ sender, text });
+// Add message to UI
+function appendMessage(sender, text, timestamp) {
+  const msg = document.createElement("div");
+  msg.classList.add("message", sender === "user" ? "user-msg" : "neony-msg");
+  msg.innerHTML = `<div class="bubble">${text}<span class="timestamp">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>`;
+  chatContainer.appendChild(msg);
+  scrollToBottom();
 }
 
-function generateNeonyReply(userText) {
-  const cleaned = userText.trim().toLowerCase();
-  if (cleaned.includes("your name") || cleaned.includes("who are you")) {
-    return "I'm Neony, your friendly AI companion. 💜";
-  } else if (cleaned.includes("how are you")) {
-    return "I’m doing great, thanks for asking! How about you?";
-  } else if (cleaned.includes("joke")) {
-    return "Why don’t robots get tired? Because they recharge their social battery ⚡🤖";
-  } else if (cleaned.includes("remember") || cleaned.includes("memory")) {
-    return "Yes, I remember everything from the cloud now! ☁️🧠";
-  } else if (cleaned.includes("clear chat")) {
-    chatRef.remove();
-    chatBox.innerHTML = "";
-    return "Chat history cleared from cloud and memory!";
-  } else {
-    const responses = [
-      "Hmm... that’s interesting! Tell me more.",
-      "I’m thinking about it... 🤔",
-      "Can you explain that a little more?",
-      "Let’s explore this together!",
-      "Great point! I hadn’t thought of that.",
-      "Absolutely! What else can I help you with?"
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
-  }
-}
+// Send message to Firebase
+function sendMessage(text) {
+  const message = {
+    sender: "user",
+    text: text,
+    timestamp: Date.now()
+  };
+  push(chatRef, message);
 
-function handleSend() {
-  const text = userInput.value.trim();
-  if (!text) return;
-
-  addMessage(text, "user");
-  saveMessage("user", text);
-  userInput.value = "";
-
+  // Fake Neony reply for now
   setTimeout(() => {
-    const reply = generateNeonyReply(text);
-    addMessage(reply, "neony");
-    saveMessage("neony", reply);
-  }, 600);
+    const reply = {
+      sender: "neony",
+      text: getNeonyReply(text),
+      timestamp: Date.now()
+    };
+    push(chatRef, reply);
+  }, 1000);
 }
 
-// Load history from Firebase on start
-chatRef.on("child_added", (snapshot) => {
-  const { sender, text } = snapshot.val();
-  addMessage(text, sender);
+// Fake AI for now
+function getNeonyReply(userText) {
+  const replies = [
+    "Hmm... that’s interesting! Tell me more.",
+    "I’m still learning. Let’s figure it out together!",
+    "Why do you think that?",
+    "That’s a cool thought!",
+    "Can you explain it more?"
+  ];
+  return replies[Math.floor(Math.random() * replies.length)];
+}
+
+// On send
+sendBtn.onclick = () => {
+  const text = inputField.value.trim();
+  if (text) {
+    sendMessage(text);
+    inputField.value = "";
+  }
+};
+
+inputField.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendBtn.click();
 });
 
-sendBtn.addEventListener("click", handleSend);
-userInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") handleSend();
+// Load existing + new messages
+onChildAdded(chatRef, (data) => {
+  const { sender, text, timestamp } = data.val();
+  appendMessage(sender, text, timestamp);
 });
