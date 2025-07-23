@@ -48,19 +48,44 @@
       margin-top: 20px;
     }
 
+    .chat-log {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+
+    .chat-log p {
+      margin: 8px 0;
+    }
+
     input, button {
       padding: 10px;
-      margin-top: 10px;
-      width: 80%;
       font-size: 16px;
       border-radius: 5px;
       border: none;
+    }
+
+    input {
+      width: 70%;
     }
 
     button {
       background: #00ff95;
       color: black;
       cursor: pointer;
+      width: 28%;
+      margin-left: 2%;
+    }
+
+    @media (max-width: 600px) {
+      input, button {
+        width: 100%;
+        margin: 5px 0;
+      }
+
+      button {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
@@ -76,10 +101,55 @@
   </div>
 
   <div class="chat-box">
-    <p><strong>You:</strong> Hey Neony!</p>
-    <p><strong>Neony:</strong> Hello! I'm still warming up. Soon, I’ll be able to chat with you fully.</p>
-    <input type="text" placeholder="Say something..." />
-    <button disabled>Coming soon...</button>
+    <div class="chat-log" id="chatLog">
+      <p><strong>You:</strong> Hey Neony!</p>
+      <p><strong>Neony:</strong> Hello! I'm still warming up. But we can already chat a bit 😊</p>
+    </div>
+    <input type="text" id="userInput" placeholder="Say something..." />
+    <button onclick="sendMessage()">Send</button>
   </div>
+
+  <script>
+    const responses = {
+      "hi": "Hi there! 😊",
+      "hello": "Hey! How can I help you today?",
+      "how are you": "I'm doing great, thank you! How about you?",
+      "what's your name": "I'm Neony, your AI buddy.",
+      "bye": "Goodbye! Talk to you soon 💬",
+      "thank you": "You're welcome!",
+    };
+
+    function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (message === "") return;
+
+      const chatLog = document.getElementById("chatLog");
+      chatLog.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+
+      const lower = message.toLowerCase();
+      let reply = "Hmm... I'm still learning. Ask me something simple!";
+
+      for (let key in responses) {
+        if (lower.includes(key)) {
+          reply = responses[key];
+          break;
+        }
+      }
+
+      setTimeout(() => {
+        chatLog.innerHTML += `<p><strong>Neony:</strong> ${reply}</p>`;
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }, 600);
+
+      input.value = "";
+    }
+
+    document.getElementById("userInput").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
 </body>
 </html>
