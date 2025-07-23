@@ -1,64 +1,80 @@
-const OPENAI_API_KEY = "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";
+const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
-const chatContainer = document.getElementById("chat");
-const userInput = document.getElementById("userInput");
-const sendButton = document.getElementById("sendBtn");
+// Load old messages from memory
+let messageHistory = JSON.parse(localStorage.getItem("neony_chat_history")) || [];
 
-function appendMessage(sender, message) {
-  const messageElem = document.createElement("div");
-  messageElem.className = sender === "user" ? "user-msg" : "neony-msg";
-  messageElem.innerHTML = `<p><strong>${sender === "user" ? "You" : "Neony"}:</strong> ${message}</p>`;
-  chatContainer.appendChild(messageElem);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+function addMessage(message, sender) {
+  const bubble = document.createElement("div");
+  bubble.classList.add("bubble", sender);
+  bubble.innerText = message;
+  chatBox.appendChild(bubble);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-async function sendMessage() {
-  const message = userInput.value.trim();
-  if (!message) return;
+// Replay old messages
+messageHistory.forEach(({ sender, text }) => addMessage(text, sender));
 
-  appendMessage("user", message);
-  userInput.value = "";
+// Save message to memory
+function saveMessage(sender, text) {
+  messageHistory.push({ sender, text });
+  localStorage.setItem("neony_chat_history", JSON.stringify(messageHistory));
+}
 
-  // Show typing effect
-  const typingElem = document.createElement("div");
-  typingElem.className = "neony-msg";
-  typingElem.id = "typing";
-  typingElem.innerHTML = `<p><strong>Neony:</strong> <em>Typing...</em></p>`;
-  chatContainer.appendChild(typingElem);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: message }],
-        temperature: 0.7,
-      }),
-    });
-
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "I’m not sure how to respond.";
-
-    document.getElementById("typing").remove();
-    appendMessage("neony", reply);
-  } catch (err) {
-    document.getElementById("typing").remove();
-    appendMessage("neony", "Oops! Something went wrong. Try again later.");
-    console.error(err);
+// Fake Neony AI brain (replace this logic with OpenAI if needed)
+function generateNeonyReply(userText) {
+  const cleaned = userText.trim().toLowerCase();
+  if (cleaned.includes("your name") || cleaned.includes("who are you")) {
+    return "I'm Neony, your friendly AI companion. 💜";
+  } else if (cleaned.includes("how are you")) {
+    return "I’m doing great, thanks for asking! How about you?";
+  } else if (cleaned.includes("joke")) {
+    return "Why don’t robots get tired? Because they recharge their social battery ⚡🤖";
+  } else if (cleaned.includes("remember") || cleaned.includes("memory")) {
+    return "Yes, I remember our chats as long as you keep me open here! 💾";
+  } else if (cleaned.includes("clear chat")) {
+    localStorage.removeItem("neony_chat_history");
+    chatBox.innerHTML = "";
+    messageHistory = [];
+    return "Done! I've cleared our conversation.";
+  } else {
+    // Generic AI-style fallback
+    const responses = [
+      "Hmm... that’s interesting! Tell me more.",
+      "I’m thinking about it... 🤔",
+      "Can you explain that a little more?",
+      "Let’s explore this together!",
+      "Great point! I hadn’t thought of that.",
+      "Absolutely! What else can I help you with?"
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
   }
 }
 
-// Trigger by button
-sendButton.addEventListener("click", sendMessage);
+// Handle sending messages
+function handleSend() {
+  const text = userInput.value.trim();
+  if (text === "") return;
 
-// Trigger by Enter key
-userInput.addEventListener("keydown", function (e) {
+  addMessage(text, "user");
+  saveMessage("user", text);
+  userInput.value = "";
+
+  // Simulate typing delay
+  setTimeout(() => {
+    const reply = generateNeonyReply(text);
+    addMessage(reply, "neony");
+    saveMessage("neony", reply);
+  }, 600);
+}
+
+// Button click
+sendBtn.addEventListener("click", handleSend);
+
+// Enter key press
+userInput.addEventListener("keypress", function (e) {
   if (e.key === "Enter") {
-    sendMessage();
+    handleSend();
   }
 });
