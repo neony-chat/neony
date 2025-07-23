@@ -12,26 +12,33 @@
       margin: 0;
       padding: 0;
     }
+
     header {
       background: rgba(0, 0, 0, 0.6);
       padding: 20px;
       display: flex;
       align-items: center;
     }
+
     header img {
       height: 60px;
       width: 60px;
       border-radius: 50%;
       margin-right: 15px;
       border: 2px solid #39ff14;
+      object-fit: cover;
     }
+
     h1 {
       font-size: 28px;
+      margin: 0;
     }
+
     .intro {
       padding: 30px 20px;
       text-align: center;
     }
+
     .chat-box {
       max-width: 600px;
       margin: 0 auto;
@@ -41,6 +48,7 @@
       overflow-y: auto;
       max-height: 500px;
     }
+
     .bubble {
       background: #444;
       padding: 10px 15px;
@@ -50,29 +58,36 @@
       word-wrap: break-word;
       animation: fadeIn 0.4s ease;
     }
+
     .bubble.user {
       background: #39ff14;
       color: black;
       margin-left: auto;
       text-align: right;
     }
+
     .bubble.neony {
       background: #3c3c7c;
       text-align: left;
     }
+
     .input-area {
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      padding: 0 20px 40px;
     }
+
     input {
       padding: 10px;
-      width: 60%;
+      width: 100%;
       font-size: 16px;
       border-radius: 5px;
       border: none;
     }
+
     button {
       padding: 10px 20px;
       background: #00ff95;
@@ -82,6 +97,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -99,11 +115,11 @@
     <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
   </div>
 
-  <div class="chat-box"></div>
+  <div class="chat-box" id="chatBox"></div>
 
   <div class="input-area">
-    <input type="text" id="user-input" placeholder="Type your message..." />
-    <button id="send-btn">Send</button>
+    <input type="text" id="userInput" placeholder="Type your message..." />
+    <button id="sendBtn">Send</button>
   </div>
 
   <script src="neony.js"></script>
