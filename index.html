@@ -12,21 +12,33 @@
       margin: 0;
       padding: 0;
     }
+
     header {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       padding: 20px;
       display: flex;
       align-items: center;
+      justify-content: flex-start;
     }
+
     header img {
-      height: 60px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
+      object-fit: cover;
       margin-right: 15px;
     }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
     .intro {
       padding: 40px 20px;
       text-align: center;
     }
+
     .chat-box {
       max-width: 600px;
       margin: auto;
@@ -35,6 +47,7 @@
       padding: 20px;
       margin-top: 20px;
     }
+
     input, button {
       padding: 10px;
       margin-top: 10px;
@@ -43,6 +56,7 @@
       border-radius: 5px;
       border: none;
     }
+
     button {
       background: #00ff95;
       color: black;
@@ -52,13 +66,15 @@
 </head>
 <body>
   <header>
-    <img src="avatar.png" alt="Neony" />
+    <img src="avatar.png" alt="Neony Avatar" />
     <h1>Neony</h1>
   </header>
+
   <div class="intro">
     <h2>Hello, I’m Neony 👋</h2>
     <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
   </div>
+
   <div class="chat-box">
     <p><strong>You:</strong> Hey Neony!</p>
     <p><strong>Neony:</strong> Hello! I'm still warming up. Soon, I’ll be able to chat with you fully.</p>
