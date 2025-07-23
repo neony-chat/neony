@@ -3,48 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Neony Chat</title>
+  <title>Neony - Your AI Companion</title>
   <style>
     body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      color: white;
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #1b1b1b, #141414);
-      color: #39ff14;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    header {
+      background: rgba(0,0,0,0.6);
+      padding: 20px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      flex-direction: column;
     }
-
-    .logo {
-      width: 120px;
-      height: 120px;
+    header img {
+      height: 60px;
       border-radius: 50%;
-      border: 2px solid white;
-      background-image: url("https://raw.githubusercontent.com/neony-chat/neony/main/logo.png");
-      background-size: cover;
-      background-position: center;
-      margin-bottom: 20px;
+      margin-right: 15px;
     }
-
-    h1 {
-      font-size: 32px;
-      margin: 10px 0;
+    .intro {
+      padding: 40px 20px;
+      text-align: center;
     }
-
-    p {
-      font-size: 18px;
-      color: #ccc;
+    .chat-box {
+      max-width: 600px;
+      margin: auto;
+      background: #1e1e2f;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 80%;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background: #00ff95;
+      color: black;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="logo"></div>
-  <h1>Welcome to Neony</h1>
-  <p>The AI chat interface for futuristic conversations.</p>
-  <script src="neony.js"></script>
-
+  <header>
+    <img src="avatar.png" alt="Neony" />
+    <h1>Neony</h1>
+  </header>
+  <div class="intro">
+    <h2>Hello, I’m Neony 👋</h2>
+    <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
+  </div>
+  <div class="chat-box">
+    <p><strong>You:</strong> Hey Neony!</p>
+    <p><strong>Neony:</strong> Hello! I'm still warming up. Soon, I’ll be able to chat with you fully.</p>
+    <input type="text" placeholder="Say something..." />
+    <button disabled>Coming soon...</button>
+  </div>
 </body>
 </html>
