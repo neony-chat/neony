@@ -3,219 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neony - Your AI Companion</title>
+  <title>Neony Chat</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
-      color: white;
       margin: 0;
-      padding: 0;
-      overflow-x: hidden;
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
-
-    header {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 20px;
+    .top-strip {
+      background: #222;
       display: flex;
       align-items: center;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px #000;
     }
-
-    header img {
-      height: 70px;
-      width: 70px;
-      object-fit: cover;
+    .avatar {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       margin-right: 15px;
-      box-shadow: 0 0 12px #00ff95;
-      transition: transform 0.4s ease;
+      border: 2px solid #39ff14;
+      object-fit: cover;
     }
-
-    header img:hover {
-      transform: scale(1.1);
+    .name {
+      font-size: 1.2em;
+      color: #39ff14;
     }
-
-    h1 {
-      font-size: 28px;
-      color: #00ff95;
-      animation: fadeIn 1s ease;
-    }
-
-    .intro {
-      padding: 40px 20px;
-      text-align: center;
-    }
-
-    .intro h2 {
-      font-size: 26px;
-      animation: fadeIn 1s ease;
-    }
-
-    .intro p {
-      font-size: 18px;
-      color: #ccc;
-      animation: fadeIn 1.2s ease;
-    }
-
-    .chat-box {
-      max-width: 600px;
-      margin: auto;
-      background: #1e1e2f;
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 20px;
-      min-height: 300px;
+    .chat-container {
+      flex: 1;
       overflow-y: auto;
-    }
-
-    .message {
-      margin: 10px 0;
-      padding: 10px 15px;
-      border-radius: 10px;
-      max-width: 80%;
-      line-height: 1.5;
-      animation: fadeInUp 0.4s ease;
-    }
-
-    .user-msg {
-      background: #00ff95;
-      color: black;
-      margin-left: auto;
-      text-align: right;
-    }
-
-    .neony-msg {
-      background: #333;
-      color: white;
-      margin-right: auto;
-      text-align: left;
-    }
-
-    .input-area {
+      padding: 20px;
       display: flex;
-      margin: 20px auto;
-      max-width: 600px;
+      flex-direction: column;
+      gap: 15px;
     }
-
-    input {
+    .bubble {
+      max-width: 70%;
+      padding: 12px 15px;
+      border-radius: 15px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .user {
+      align-self: flex-end;
+      background: #39ff14;
+      color: #000;
+      border-bottom-right-radius: 0;
+    }
+    .bot {
+      align-self: flex-start;
+      background: #333;
+      color: #fff;
+      border-bottom-left-radius: 0;
+    }
+    .input-container {
+      display: flex;
+      padding: 15px;
+      background: #1a1a1a;
+      border-top: 1px solid #333;
+    }
+    #input {
       flex: 1;
       padding: 12px;
-      font-size: 16px;
-      border-radius: 5px 0 0 5px;
       border: none;
+      border-radius: 5px;
+      font-size: 1em;
     }
-
     button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background: #00ff95;
-      color: black;
+      margin-left: 10px;
+      background: #39ff14;
       border: none;
-      border-radius: 0 5px 5px 0;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
       cursor: pointer;
     }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    ::-webkit-scrollbar {
+      width: 6px;
     }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 3px;
     }
-
   </style>
 </head>
 <body>
-  <header>
-    <img src="avatar.png" alt="Neony" />
-    <h1>Neony</h1>
-  </header>
 
-  <div class="intro">
-    <h2>Hello, I’m Neony 👋</h2>
-    <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
+  <div class="top-strip">
+    <img src="avatar.png" class="avatar" alt="Neony" />
+    <div class="name">Neony</div>
   </div>
 
-  <div class="chat-box" id="chatBox"></div>
+  <div class="chat-container" id="chat"></div>
 
-  <div class="input-area">
-    <input type="text" id="userInput" placeholder="Say something...">
+  <div class="input-container">
+    <input type="text" id="input" placeholder="Type your message..." autocomplete="off" />
     <button onclick="sendMessage()">Send</button>
   </div>
 
-  <script>
-    const chatBox = document.getElementById('chatBox');
-    const input = document.getElementById('userInput');
-
-    const memory = JSON.parse(localStorage.getItem('neonyMemory')) || [];
-
-    function appendMessage(text, sender) {
-      const msg = document.createElement('div');
-      msg.className = 'message ' + (sender === 'user' ? 'user-msg' : 'neony-msg');
-      msg.innerText = text;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      appendMessage(text, 'user');
-      memory.push({ sender: 'user', text });
-      input.value = '';
-
-      const reply = generateReply(text);
-      simulateTyping(reply);
-    }
-
-    function generateReply(userText) {
-      const lower = userText.toLowerCase();
-      if (lower.includes('hello') || lower.includes('hi')) return "Hey there! 😊";
-      if (lower.includes('who are you')) return "I'm Neony, your AI buddy. Nice to meet you!";
-      if (lower.includes('remember')) return "Of course! I’m designed to remember what you say (locally).";
-      return "That's interesting! Tell me more.";
-    }
-
-    function simulateTyping(replyText) {
-      const typingSpeed = 40;
-      let index = 0;
-      const container = document.createElement('div');
-      container.className = 'message neony-msg';
-      chatBox.appendChild(container);
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      const interval = setInterval(() => {
-        container.innerText += replyText[index];
-        index++;
-        if (index >= replyText.length) {
-          clearInterval(interval);
-          memory.push({ sender: 'neony', text: replyText });
-          localStorage.setItem('neonyMemory', JSON.stringify(memory));
-        }
-      }, typingSpeed);
-    }
-
-    // Load chat history
-    memory.forEach(msg => appendMessage(msg.text, msg.sender));
-
-    // Send on Enter key
-    input.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-  </script>
+  <script src="main.js"></script>
 </body>
 </html>
