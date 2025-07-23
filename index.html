@@ -1,124 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neony - Your AI Companion</title>
+  <meta charset="UTF-8">
+  <title>Neony Chat</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
-      color: white;
       margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: white;
     }
-    header {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 20px;
+
+    .top-strip {
+      background-color: #1a1a1a;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
     }
-    header img {
-      height: 60px;
-      width: 60px;
+
+    .top-strip img {
+      height: 40px;
+      width: 40px;
       border-radius: 50%;
-      margin-right: 15px;
-      border: 2px solid magenta;
-      box-shadow: 0 0 10px magenta, 0 0 20px magenta;
-      animation: glow 2s ease-in-out infinite alternate;
+      border: 3px solid magenta;
+      box-shadow: 0 0 10px magenta;
+      margin-right: 10px;
     }
-    header h1 {
-      font-size: 28px;
+
+    .top-strip span {
+      font-size: 18px;
+      font-weight: bold;
       color: magenta;
-      text-shadow: 0 0 5px magenta;
     }
-    .intro {
-      padding: 30px 20px;
-      text-align: center;
-    }
-    .chat-box {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #1e1e2f;
-      border-radius: 10px;
-      padding: 20px;
+
+    #chat-box {
+      height: 80vh;
       overflow-y: auto;
-      max-height: 500px;
+      padding: 20px;
+      background: #121212;
     }
+
     .bubble {
-      background: #444;
-      padding: 10px 15px;
-      border-radius: 20px;
-      margin: 10px 0;
-      max-width: 80%;
-      word-wrap: break-word;
-      animation: fadeIn 0.4s ease;
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      line-height: 1.4em;
     }
-    .bubble.user {
+
+    .user {
       background: #39ff14;
       color: black;
+      align-self: flex-end;
       margin-left: auto;
-      text-align: right;
     }
-    .bubble.neony {
-      background: #3c3c7c;
-      text-align: left;
+
+    .neony {
+      background: #333;
+      color: magenta;
+      align-self: flex-start;
+      margin-right: auto;
     }
-    .input-area {
+
+    #input-area {
       display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    input {
       padding: 10px;
-      width: 60%;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
+      background: #1a1a1a;
     }
-    button {
+
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #send-btn {
       padding: 10px 20px;
+      margin-left: 10px;
       background: magenta;
       color: white;
-      font-weight: bold;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      box-shadow: 0 0 10px magenta;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes glow {
-      from {
-        box-shadow: 0 0 5px magenta;
-      }
-      to {
-        box-shadow: 0 0 20px magenta, 0 0 30px magenta;
-      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="avatar.png" alt="Neony Avatar" />
-    <h1>Neony</h1>
-  </header>
 
-  <div class="intro">
-    <h2>Hello, I’m Neony 👋</h2>
-    <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
-  </div>
+<div class="top-strip">
+  <img src="avatar.png" alt="Neony">
+  <span>Neony</span>
+</div>
 
-  <div class="chat-box" id="chat-box"></div>
+<div id="chat-box"></div>
 
-  <div class="input-area">
-    <input type="text" id="user-input" placeholder="Type your message..." />
-    <button id="send-btn">Send</button>
-  </div>
+<div id="input-area">
+  <input id="user-input" placeholder="Type your message here..." />
+  <button id="send-btn">Send</button>
+</div>
 
-  <script src="neony.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<!-- Neony Logic -->
+<script src="neony.js"></script>
+
 </body>
 </html>
