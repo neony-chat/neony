@@ -122,6 +122,40 @@
     <button id="sendBtn">Send</button>
   </div>
 
-  <script src="neony.js"></script>
+  <script>
+    const sendBtn = document.getElementById('sendBtn');
+    const userInput = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatBox');
+
+    function addMessage(content, className) {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + className;
+      bubble.innerText = content;
+      chatBox.appendChild(bubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message === '') return;
+
+      addMessage(message, 'user');
+
+      // Example static Neony reply
+      setTimeout(() => {
+        addMessage("Neony says: " + message, 'neony');
+      }, 500);
+
+      userInput.value = '';
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    userInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
 </body>
 </html>
