@@ -12,33 +12,30 @@
       margin: 0;
       padding: 0;
     }
-
     header {
       background: rgba(0, 0, 0, 0.6);
       padding: 20px;
       display: flex;
       align-items: center;
     }
-
     header img {
       height: 60px;
       width: 60px;
       border-radius: 50%;
       margin-right: 15px;
-      border: 2px solid #39ff14;
-      object-fit: cover;
+      border: 2px solid magenta;
+      box-shadow: 0 0 10px magenta, 0 0 20px magenta;
+      animation: glow 2s ease-in-out infinite alternate;
     }
-
-    h1 {
+    header h1 {
       font-size: 28px;
-      margin: 0;
+      color: magenta;
+      text-shadow: 0 0 5px magenta;
     }
-
     .intro {
       padding: 30px 20px;
       text-align: center;
     }
-
     .chat-box {
       max-width: 600px;
       margin: 0 auto;
@@ -48,7 +45,6 @@
       overflow-y: auto;
       max-height: 500px;
     }
-
     .bubble {
       background: #444;
       padding: 10px 15px;
@@ -58,49 +54,50 @@
       word-wrap: break-word;
       animation: fadeIn 0.4s ease;
     }
-
     .bubble.user {
       background: #39ff14;
       color: black;
       margin-left: auto;
       text-align: right;
     }
-
     .bubble.neony {
       background: #3c3c7c;
       text-align: left;
     }
-
     .input-area {
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin: 20px auto;
-      max-width: 600px;
-      padding: 0 20px 40px;
+      margin-top: 20px;
     }
-
     input {
       padding: 10px;
-      width: 100%;
+      width: 60%;
       font-size: 16px;
       border-radius: 5px;
       border: none;
     }
-
     button {
       padding: 10px 20px;
-      background: #00ff95;
-      color: black;
+      background: magenta;
+      color: white;
       font-weight: bold;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      box-shadow: 0 0 10px magenta;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 5px magenta;
+      }
+      to {
+        box-shadow: 0 0 20px magenta, 0 0 30px magenta;
+      }
     }
   </style>
 </head>
@@ -115,47 +112,13 @@
     <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
   </div>
 
-  <div class="chat-box" id="chatBox"></div>
+  <div class="chat-box" id="chat-box"></div>
 
   <div class="input-area">
-    <input type="text" id="userInput" placeholder="Type your message..." />
-    <button id="sendBtn">Send</button>
+    <input type="text" id="user-input" placeholder="Type your message..." />
+    <button id="send-btn">Send</button>
   </div>
 
-  <script>
-    const sendBtn = document.getElementById('sendBtn');
-    const userInput = document.getElementById('userInput');
-    const chatBox = document.getElementById('chatBox');
-
-    function addMessage(content, className) {
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble ' + className;
-      bubble.innerText = content;
-      chatBox.appendChild(bubble);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function sendMessage() {
-      const message = userInput.value.trim();
-      if (message === '') return;
-
-      addMessage(message, 'user');
-
-      // Example static Neony reply
-      setTimeout(() => {
-        addMessage("Neony says: " + message, 'neony');
-      }, 500);
-
-      userInput.value = '';
-    }
-
-    sendBtn.addEventListener('click', sendMessage);
-
-    userInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-  </script>
+  <script src="neony.js"></script>
 </body>
 </html>
