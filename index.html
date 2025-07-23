@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Neony - Your AI Companion</title>
   <style>
     body {
@@ -14,24 +14,16 @@
     }
 
     header {
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0,0,0,0.6);
       padding: 20px;
       display: flex;
       align-items: center;
-      justify-content: flex-start;
     }
 
     header img {
-      width: 50px;
-      height: 50px;
+      height: 60px;
       border-radius: 50%;
-      object-fit: cover;
       margin-right: 15px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 24px;
     }
 
     .intro {
@@ -46,52 +38,58 @@
       border-radius: 10px;
       padding: 20px;
       margin-top: 20px;
+      min-height: 300px;
     }
 
-    .chat-log {
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 20px;
+    .message {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 10px;
+      max-width: 80%;
+      line-height: 1.5;
     }
 
-    .chat-log p {
-      margin: 8px 0;
+    .user-msg {
+      background: #00ff95;
+      color: black;
+      margin-left: auto;
+      text-align: right;
     }
 
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
+    .neony-msg {
+      background: #333;
+      color: white;
+      margin-right: auto;
+      text-align: left;
+    }
+
+    .input-area {
+      display: flex;
+      margin-top: 10px;
     }
 
     input {
-      width: 70%;
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px 0 0 5px;
+      border: none;
     }
 
     button {
+      padding: 10px 20px;
+      font-size: 16px;
       background: #00ff95;
       color: black;
+      border: none;
+      border-radius: 0 5px 5px 0;
       cursor: pointer;
-      width: 28%;
-      margin-left: 2%;
-    }
-
-    @media (max-width: 600px) {
-      input, button {
-        width: 100%;
-        margin: 5px 0;
-      }
-
-      button {
-        margin-left: 0;
-      }
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="avatar.png" alt="Neony Avatar" />
+    <img src="avatar.png" alt="Neony" />
     <h1>Neony</h1>
   </header>
 
@@ -100,56 +98,68 @@
     <p>Your always-learning AI companion. I grow with you, remember you, and respond like a real friend. Built free, forever.</p>
   </div>
 
-  <div class="chat-box">
-    <div class="chat-log" id="chatLog">
-      <p><strong>You:</strong> Hey Neony!</p>
-      <p><strong>Neony:</strong> Hello! I'm still warming up. But we can already chat a bit 😊</p>
-    </div>
-    <input type="text" id="userInput" placeholder="Say something..." />
+  <div class="chat-box" id="chatBox"></div>
+
+  <div class="input-area" style="max-width: 600px; margin: auto;">
+    <input type="text" id="userInput" placeholder="Say something...">
     <button onclick="sendMessage()">Send</button>
   </div>
 
   <script>
-    const responses = {
-      "hi": "Hi there! 😊",
-      "hello": "Hey! How can I help you today?",
-      "how are you": "I'm doing great, thank you! How about you?",
-      "what's your name": "I'm Neony, your AI buddy.",
-      "bye": "Goodbye! Talk to you soon 💬",
-      "thank you": "You're welcome!",
-    };
+    const chatBox = document.getElementById('chatBox');
+    const input = document.getElementById('userInput');
 
-    function sendMessage() {
-      const input = document.getElementById("userInput");
-      const message = input.value.trim();
-      if (message === "") return;
+    const memory = JSON.parse(localStorage.getItem('neonyMemory')) || [];
 
-      const chatLog = document.getElementById("chatLog");
-      chatLog.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
-
-      const lower = message.toLowerCase();
-      let reply = "Hmm... I'm still learning. Ask me something simple!";
-
-      for (let key in responses) {
-        if (lower.includes(key)) {
-          reply = responses[key];
-          break;
-        }
-      }
-
-      setTimeout(() => {
-        chatLog.innerHTML += `<p><strong>Neony:</strong> ${reply}</p>`;
-        chatLog.scrollTop = chatLog.scrollHeight;
-      }, 600);
-
-      input.value = "";
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.className = 'message ' + (sender === 'user' ? 'user-msg' : 'neony-msg');
+      msg.innerText = text;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    document.getElementById("userInput").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        sendMessage();
-      }
-    });
+    function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      appendMessage(text, 'user');
+      memory.push({ sender: 'user', text });
+
+      input.value = '';
+
+      const reply = generateReply(text);
+      simulateTyping(reply);
+    }
+
+    function generateReply(userText) {
+      const lower = userText.toLowerCase();
+      if (lower.includes('hello') || lower.includes('hi')) return "Hey there! 😊";
+      if (lower.includes('who are you')) return "I'm Neony, your AI buddy. Nice to meet you!";
+      if (lower.includes('remember')) return "Of course! I’m designed to remember what you say (locally).";
+      return "That's interesting! Tell me more.";
+    }
+
+    function simulateTyping(replyText) {
+      const typingSpeed = 50;
+      let index = 0;
+      const container = document.createElement('div');
+      container.className = 'message neony-msg';
+      chatBox.appendChild(container);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const interval = setInterval(() => {
+        container.innerText += replyText[index];
+        index++;
+        if (index >= replyText.length) {
+          clearInterval(interval);
+          memory.push({ sender: 'neony', text: replyText });
+          localStorage.setItem('neonyMemory', JSON.stringify(memory));
+        }
+      }, typingSpeed);
+    }
+
+    // Load chat history
+    memory.forEach(msg => appendMessage(msg.text, msg.sender));
   </script>
 </body>
 </html>
