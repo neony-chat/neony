@@ -6,29 +6,55 @@
   <title>Neony - Your AI Companion</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
       color: white;
       margin: 0;
       padding: 0;
+      overflow-x: hidden;
     }
 
     header {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       padding: 20px;
       display: flex;
       align-items: center;
     }
 
     header img {
-      height: 60px;
+      height: 70px;
+      width: 70px;
+      object-fit: cover;
       border-radius: 50%;
       margin-right: 15px;
+      box-shadow: 0 0 12px #00ff95;
+      transition: transform 0.4s ease;
+    }
+
+    header img:hover {
+      transform: scale(1.1);
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #00ff95;
+      animation: fadeIn 1s ease;
     }
 
     .intro {
       padding: 40px 20px;
       text-align: center;
+    }
+
+    .intro h2 {
+      font-size: 26px;
+      animation: fadeIn 1s ease;
+    }
+
+    .intro p {
+      font-size: 18px;
+      color: #ccc;
+      animation: fadeIn 1.2s ease;
     }
 
     .chat-box {
@@ -39,6 +65,7 @@
       padding: 20px;
       margin-top: 20px;
       min-height: 300px;
+      overflow-y: auto;
     }
 
     .message {
@@ -47,6 +74,7 @@
       border-radius: 10px;
       max-width: 80%;
       line-height: 1.5;
+      animation: fadeInUp 0.4s ease;
     }
 
     .user-msg {
@@ -65,19 +93,20 @@
 
     .input-area {
       display: flex;
-      margin-top: 10px;
+      margin: 20px auto;
+      max-width: 600px;
     }
 
     input {
       flex: 1;
-      padding: 10px;
+      padding: 12px;
       font-size: 16px;
       border-radius: 5px 0 0 5px;
       border: none;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 12px 20px;
       font-size: 16px;
       background: #00ff95;
       color: black;
@@ -85,6 +114,27 @@
       border-radius: 0 5px 5px 0;
       cursor: pointer;
     }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -100,7 +150,7 @@
 
   <div class="chat-box" id="chatBox"></div>
 
-  <div class="input-area" style="max-width: 600px; margin: auto;">
+  <div class="input-area">
     <input type="text" id="userInput" placeholder="Say something...">
     <button onclick="sendMessage()">Send</button>
   </div>
@@ -124,7 +174,6 @@
       if (!text) return;
       appendMessage(text, 'user');
       memory.push({ sender: 'user', text });
-
       input.value = '';
 
       const reply = generateReply(text);
@@ -140,7 +189,7 @@
     }
 
     function simulateTyping(replyText) {
-      const typingSpeed = 50;
+      const typingSpeed = 40;
       let index = 0;
       const container = document.createElement('div');
       container.className = 'message neony-msg';
@@ -160,6 +209,13 @@
 
     // Load chat history
     memory.forEach(msg => appendMessage(msg.text, msg.sender));
+
+    // Send on Enter key
+    input.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
