@@ -1,91 +1,87 @@
-// Firebase Setup
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
+// ✅ Firebase Config (replace if using your own)
 const firebaseConfig = {
-  apiKey: "AIzaSyCbe0rwBF18efdaOiVT4xAwdEm3DkPgeJI",
-  authDomain: "neony-chat.firebaseapp.com",
-  databaseURL: "https://neony-chat-default-rtdb.firebaseio.com",
-  projectId: "neony-chat",
-  storageBucket: "neony-chat.appspot.com",
-  messagingSenderId: "1036357030418",
-  appId: "1:1036357030418:web:498372ed01cc1f53d8becb",
-  measurementId: "G-5GZJ4EJDKT"
+  databaseURL: "https://neony-chat-default-rtdb.firebaseio.com/"
 };
+firebase.initializeApp(firebaseConfig);
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const chatRef = ref(db, "neony/messages");
+const db = firebase.database();
+const chatRef = db.ref("chats");
 
-const chatContainer = document.getElementById("chat-box");
+// ✅ Elements
 const inputField = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
+const chatBox = document.getElementById("chat-box");
 
-// Scroll to bottom
-function scrollToBottom() {
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-}
+// ✅ Send message
+sendBtn.addEventListener("click", sendMessage);
+inputField.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
 
-// Add message to UI
-function appendMessage(sender, text, timestamp) {
-  const msg = document.createElement("div");
-  msg.classList.add("message", sender === "user" ? "user" : "neony");
-  msg.innerHTML = `
-    <div class="bubble">${text}</div>
-    <div class="timestamp">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-  `;
-  chatContainer.appendChild(msg);
-  scrollToBottom();
-}
+function sendMessage() {
+  const message = inputField.value.trim();
+  if (message === "") return;
 
-// Send message to Firebase
-function sendMessage(text) {
-  const message = {
+  const timestamp = Date.now();
+  const newMsg = {
     sender: "user",
-    text: text,
-    timestamp: Date.now()
+    text: message,
+    time: timestamp
   };
-  push(chatRef, message);
 
-  // Fake Neony reply
-  setTimeout(() => {
-    const reply = {
-      sender: "neony",
-      text: getNeonyReply(text),
-      timestamp: Date.now()
-    };
-    push(chatRef, reply);
-  }, 1000);
+  // Save user message
+  chatRef.push(newMsg);
+
+  inputField.value = "";
 }
 
-// Fake AI logic
-function getNeonyReply(userText) {
-  const replies = [
-    "Hmm... that’s interesting! Tell me more.",
-    "I’m still learning. Let’s figure it out together!",
-    "Why do you think that?",
-    "That’s a cool thought!",
-    "Can you explain it more?"
-  ];
-  return replies[Math.floor(Math.random() * replies.length)];
+// ✅ Auto scroll to bottom
+function scrollToBottom() {
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send button
-sendBtn.onclick = () => {
-  const text = inputField.value.trim();
-  if (text) {
-    sendMessage(text);
-    inputField.value = "";
+// ✅ Display message
+function displayMessage(data) {
+  const msg = data.val();
+  const bubble = document.createElement("div");
+  bubble.className = `message ${msg.sender}`;
+
+  const textDiv = document.createElement("div");
+  textDiv.className = `bubble ${msg.sender}`;
+  textDiv.textContent = msg.text;
+
+  const time = new Date(msg.time);
+  const timestamp = document.createElement("div");
+  timestamp.className = "timestamp";
+  timestamp.textContent = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  bubble.appendChild(textDiv);
+  bubble.appendChild(timestamp);
+
+  chatBox.appendChild(bubble);
+  scrollToBottom();
+
+  // If user sends a message, reply as Neony
+  if (msg.sender === "user") {
+    setTimeout(() => {
+      const reply = {
+        sender: "neony",
+        text: getNeonyReply(msg.text),
+        time: Date.now()
+      };
+      chatRef.push(reply);
+    }, 1000);
   }
-};
+}
 
-// Enter key triggers send
-inputField.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendBtn.click();
-});
+// ✅ Auto response generator
+function getNeonyReply(userMsg) {
+  const lower = userMsg.toLowerCase();
+  if (lower.includes("hello") || lower.includes("hi")) return "Hey there! 😊";
+  if (lower.includes("how are you")) return "I'm glowing as always. How about you?";
+  if (lower.includes("bye")) return "Talk soon! 💜";
+  return "I'm here, tell me more!";
+}
 
-// Load messages
-onChildAdded(chatRef, (data) => {
-  const { sender, text, timestamp } = data.val();
-  appendMessage(sender, text, timestamp);
-});
+// ✅ Load existing messages
+chatRef.on("child_added", displayMessage);
