@@ -1,79 +1,84 @@
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCbe0rwBF18efdaOiVT4xAwdEm3DkPgeJI",
+  authDomain: "neony-chat.firebaseapp.com",
+  databaseURL: "https://neony-chat-default-rtdb.firebaseio.com",
+  projectId: "neony-chat",
+  storageBucket: "neony-chat.firebasestorage.app",
+  messagingSenderId: "1036357030418",
+  appId: "1:1036357030418:web:498372ed01cc1f53d8becb",
+  measurementId: "G-5GZJ4EJDKT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const chatRef = db.ref("neony/messages");
+
 const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 
-// Load chat history
-let messageHistory = JSON.parse(localStorage.getItem("neony_chat_history")) || [];
-
-function addMessage(message, sender) {
+function addMessage(text, sender) {
   const bubble = document.createElement("div");
   bubble.classList.add("bubble", sender);
-  bubble.innerText = message;
+  bubble.innerText = text;
   chatBox.appendChild(bubble);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Display old messages
-messageHistory.forEach(({ sender, text }) => addMessage(text, sender));
-
-// Save message
 function saveMessage(sender, text) {
-  messageHistory.push({ sender, text });
-  localStorage.setItem("neony_chat_history", JSON.stringify(messageHistory));
+  chatRef.push({ sender, text });
 }
 
-// Get Neony's reply from server (OpenAI API via PHP)
-async function generateNeonyReply(userText) {
-  try {
-    const res = await fetch("chatgpt.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message: userText })
-    });
-
-    const data = await res.json();
-    return data.reply || "Hmm... I couldn’t understand that. Can you rephrase?";
-  } catch (err) {
-    return "Oops! I had a little glitch. Try again? 🤖";
+function generateNeonyReply(userText) {
+  const cleaned = userText.trim().toLowerCase();
+  if (cleaned.includes("your name") || cleaned.includes("who are you")) {
+    return "I'm Neony, your friendly AI companion. 💜";
+  } else if (cleaned.includes("how are you")) {
+    return "I’m doing great, thanks for asking! How about you?";
+  } else if (cleaned.includes("joke")) {
+    return "Why don’t robots get tired? Because they recharge their social battery ⚡🤖";
+  } else if (cleaned.includes("remember") || cleaned.includes("memory")) {
+    return "Yes, I remember everything from the cloud now! ☁️🧠";
+  } else if (cleaned.includes("clear chat")) {
+    chatRef.remove();
+    chatBox.innerHTML = "";
+    return "Chat history cleared from cloud and memory!";
+  } else {
+    const responses = [
+      "Hmm... that’s interesting! Tell me more.",
+      "I’m thinking about it... 🤔",
+      "Can you explain that a little more?",
+      "Let’s explore this together!",
+      "Great point! I hadn’t thought of that.",
+      "Absolutely! What else can I help you with?"
+    ];
+    return responses[Math.floor(Math.random() * responses.length)];
   }
 }
 
-// Handle message send
 function handleSend() {
   const text = userInput.value.trim();
-  if (text === "") return;
+  if (!text) return;
 
   addMessage(text, "user");
   saveMessage("user", text);
   userInput.value = "";
 
-  // Add "typing" animation (optional)
-  const thinkingBubble = document.createElement("div");
-  thinkingBubble.classList.add("bubble", "neony");
-  thinkingBubble.innerText = "Typing...";
-  chatBox.appendChild(thinkingBubble);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  setTimeout(async () => {
-    const reply = await generateNeonyReply(text);
-
-    // Remove thinking message
-    chatBox.removeChild(thinkingBubble);
-
+  setTimeout(() => {
+    const reply = generateNeonyReply(text);
     addMessage(reply, "neony");
     saveMessage("neony", reply);
   }, 600);
 }
 
-// Send button
-sendBtn.addEventListener("click", handleSend);
+// Load history from Firebase on start
+chatRef.on("child_added", (snapshot) => {
+  const { sender, text } = snapshot.val();
+  addMessage(text, sender);
+});
 
-// Enter key
-userInput.addEventListener("keypress", function (e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    handleSend();
-  }
+sendBtn.addEventListener("click", handleSend);
+userInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") handleSend();
 });
