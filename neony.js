@@ -1,5 +1,3 @@
-// neony.js
-
 // Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -19,7 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const chatRef = ref(db, "neony/messages");
 
-const chatContainer = document.getElementById("chat-container");
+const chatContainer = document.getElementById("chat-box");
 const inputField = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 
@@ -31,8 +29,11 @@ function scrollToBottom() {
 // Add message to UI
 function appendMessage(sender, text, timestamp) {
   const msg = document.createElement("div");
-  msg.classList.add("message", sender === "user" ? "user-msg" : "neony-msg");
-  msg.innerHTML = `<div class="bubble">${text}<span class="timestamp">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></div>`;
+  msg.classList.add("message", sender === "user" ? "user" : "neony");
+  msg.innerHTML = `
+    <div class="bubble">${text}</div>
+    <div class="timestamp">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+  `;
   chatContainer.appendChild(msg);
   scrollToBottom();
 }
@@ -46,7 +47,7 @@ function sendMessage(text) {
   };
   push(chatRef, message);
 
-  // Fake Neony reply for now
+  // Fake Neony reply
   setTimeout(() => {
     const reply = {
       sender: "neony",
@@ -57,7 +58,7 @@ function sendMessage(text) {
   }, 1000);
 }
 
-// Fake AI for now
+// Fake AI logic
 function getNeonyReply(userText) {
   const replies = [
     "Hmm... that’s interesting! Tell me more.",
@@ -69,7 +70,7 @@ function getNeonyReply(userText) {
   return replies[Math.floor(Math.random() * replies.length)];
 }
 
-// On send
+// Send button
 sendBtn.onclick = () => {
   const text = inputField.value.trim();
   if (text) {
@@ -78,11 +79,12 @@ sendBtn.onclick = () => {
   }
 };
 
+// Enter key triggers send
 inputField.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendBtn.click();
 });
 
-// Load existing + new messages
+// Load messages
 onChildAdded(chatRef, (data) => {
   const { sender, text, timestamp } = data.val();
   appendMessage(sender, text, timestamp);
