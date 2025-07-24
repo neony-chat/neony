@@ -64,22 +64,32 @@ async function getNeonyReply(userMsg) {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://neony-chat.github.io",
+        "X-Title": "NeonyChat"
       },
       body: JSON.stringify({
-        model: "openai/gpt-4",
+        model: "openai/gpt-3.5-turbo",
         messages: [
-          { role: "system", content: "You are Neony, a flirty, intelligent, helpful AI girl who chats naturally like a human girlfriend. Keep responses engaging, real, witty, and concise." },
-          { role: "user", content: userMsg }
+          {
+            role: "system",
+            content: "You are Neony, a flirty, intelligent, helpful AI girl who chats naturally like a human girlfriend. Keep responses engaging, real, witty, and concise."
+          },
+          {
+            role: "user",
+            content: userMsg
+          }
         ]
       })
     });
 
     const data = await response.json();
+
     const neonyReply = data.choices?.[0]?.message?.content || "Sorry, I didn’t catch that.";
     addMessage("neony", neonyReply);
     saveMessage("neony", neonyReply);
   } catch (err) {
+    console.error("API Error:", err);
     addMessage("neony", "Oops! Something went wrong 💔");
   }
 }
