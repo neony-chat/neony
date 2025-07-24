@@ -70,7 +70,7 @@ async function getNeonyReply(userText) {
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://neony-chat.github.io",
+        "Referer": "https://neony-chat.github.io",  // ✅ fixed
         "X-Title": "NeonyChat"
       },
       body: JSON.stringify({
