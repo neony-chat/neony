@@ -1,87 +1,66 @@
-// ✅ Firebase Config (replace if using your own)
+// Firebase config — unchanged, yours already working
 const firebaseConfig = {
-  databaseURL: "https://neony-chat-default-rtdb.firebaseio.com/"
+  databaseURL: "https://neonychat-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
-const chatRef = db.ref("chats");
 
-// ✅ Elements
-const inputField = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+// OpenRouter API key
+const OPENROUTER_API_KEY = "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";
+
+// Elements
 const chatBox = document.getElementById("chat-box");
+const userInput = document.getElementById("user-input");
+const sendBtn = document.getElementById("send-btn");
 
-// ✅ Send message
-sendBtn.addEventListener("click", sendMessage);
-inputField.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendMessage();
+// Send user message
+sendBtn.addEventListener("click", () => {
+  const text = userInput.value.trim();
+  if (text) {
+    addMessage("user", text);
+    userInput.value = "";
+    saveMessage("user", text);
+    getNeonyReply(text);
+  }
 });
 
-function sendMessage() {
-  const message = inputField.value.trim();
-  if (message === "") return;
-
-  const timestamp = Date.now();
-  const newMsg = {
-    sender: "user",
-    text: message,
-    time: timestamp
-  };
-
-  // Save user message
-  chatRef.push(newMsg);
-
-  inputField.value = "";
-}
-
-// ✅ Auto scroll to bottom
-function scrollToBottom() {
+function addMessage(sender, text) {
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `message ${sender}`;
+  msgDiv.innerHTML = `
+    <div class="bubble ${sender}">${text}</div>
+    <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+  `;
+  chatBox.appendChild(msgDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// ✅ Display message
-function displayMessage(data) {
-  const msg = data.val();
-  const bubble = document.createElement("div");
-  bubble.className = `message ${msg.sender}`;
+function saveMessage(sender, text) {
+  db.ref("messages").push({ sender, text, time: Date.now() });
+}
 
-  const textDiv = document.createElement("div");
-  textDiv.className = `bubble ${msg.sender}`;
-  textDiv.textContent = msg.text;
+async function getNeonyReply(userMsg) {
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-4",
+        messages: [
+          { role: "system", content: "You are Neony, a flirty, intelligent, helpful AI girl who chats naturally like a human girlfriend. Keep responses engaging, real, witty, and concise." },
+          { role: "user", content: userMsg }
+        ]
+      })
+    });
 
-  const time = new Date(msg.time);
-  const timestamp = document.createElement("div");
-  timestamp.className = "timestamp";
-  timestamp.textContent = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  bubble.appendChild(textDiv);
-  bubble.appendChild(timestamp);
-
-  chatBox.appendChild(bubble);
-  scrollToBottom();
-
-  // If user sends a message, reply as Neony
-  if (msg.sender === "user") {
-    setTimeout(() => {
-      const reply = {
-        sender: "neony",
-        text: getNeonyReply(msg.text),
-        time: Date.now()
-      };
-      chatRef.push(reply);
-    }, 1000);
+    const data = await response.json();
+    const neonyReply = data.choices?.[0]?.message?.content || "Sorry, I didn’t catch that.";
+    addMessage("neony", neonyReply);
+    saveMessage("neony", neonyReply);
+  } catch (err) {
+    addMessage("neony", "Oops! Something went wrong 💔");
   }
 }
-
-// ✅ Auto response generator
-function getNeonyReply(userMsg) {
-  const lower = userMsg.toLowerCase();
-  if (lower.includes("hello") || lower.includes("hi")) return "Hey there! 😊";
-  if (lower.includes("how are you")) return "I'm glowing as always. How about you?";
-  if (lower.includes("bye")) return "Talk soon! 💜";
-  return "I'm here, tell me more!";
-}
-
-// ✅ Load existing messages
-chatRef.on("child_added", displayMessage);
