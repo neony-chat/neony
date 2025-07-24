@@ -5,9 +5,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// OpenRouter API Key (insert yours below)
-const OPENROUTER_API_KEY = "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";
-
 // DOM Elements
 const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
@@ -62,35 +59,18 @@ function saveMessage(sender, text) {
   });
 }
 
-// Get real Neony reply
+// Get real Neony reply securely
 async function getNeonyReply(userText) {
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("chatgpt.php", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "Referer": "https://neony-chat.github.io",  // ✅ fixed
-        "X-Title": "NeonyChat"
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "You are Neony, a flirty, intelligent, helpful AI girlfriend who chats like a real human. Be engaging, witty, concise, and kind."
-          },
-          {
-            role: "user",
-            content: userText
-          }
-        ]
-      })
+      body: JSON.stringify({ user: userText })
     });
 
     const data = await response.json();
-    console.log("Raw API Response:", data);
-
     const reply = data.choices?.[0]?.message?.content?.trim();
 
     if (reply) {
@@ -100,7 +80,7 @@ async function getNeonyReply(userText) {
       addMessage("neony", "Oops, I didn’t catch that 💔");
     }
   } catch (err) {
-    console.error("API Error:", err);
+    console.error("Chat Error:", err);
     addMessage("neony", "Oops! Something went wrong 💔");
   }
 }
