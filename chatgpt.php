@@ -1,32 +1,46 @@
 <?php
-$apiKey = "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"; // Replace with your OpenAI secret key
-$input = json_decode(file_get_contents("php://input"), true);
-$prompt = $input['message'];
+header('Content-Type: application/json');
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://api.openai.com/v1/chat/completions");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/json",
-    "Authorization: Bearer $apiKey"
-]);
+// Get input
+$input = json_decode(file_get_contents('php://input'), true);
+$userText = $input['user'] ?? '';
 
-$data = [
-    "model" => "gpt-3.5-turbo",
-    "messages" => [
-        ["role" => "system", "content" => "You are Neony, a friendly and witty female AI assistant."],
-        ["role" => "user", "content" => $prompt]
-    ],
-    "temperature" => 0.8
+if (!$userText) {
+  echo json_encode(['error' => 'No user input']);
+  exit;
+}
+
+// API call to OpenRouter
+$apiKey = "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";
+
+$payload = [
+  "model" => "openai/gpt-3.5-turbo",
+  "messages" => [
+    ["role" => "system", "content" => "You are Neony, a flirty, intelligent, helpful AI girlfriend who chats like a real human. Be engaging, witty, concise, and kind."],
+    ["role" => "user", "content" => $userText]
+  ]
 ];
 
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+$ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
+curl_setopt_array($ch, [
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_POST => true,
+  CURLOPT_HTTPHEADER => [
+    "Authorization: Bearer $apiKey",
+    "Content-Type: application/json",
+    "HTTP-Referer: https://neony-chat.github.io",
+    "X-Title: NeonyChat"
+  ],
+  CURLOPT_POSTFIELDS => json_encode($payload),
+]);
+
 $response = curl_exec($ch);
+$err = curl_error($ch);
 curl_close($ch);
 
-$result = json_decode($response, true);
-$reply = $result["choices"][0]["message"]["content"] ?? "Sorry, something went wrong.";
-
-echo json_encode(["reply" => $reply]);
+if ($err) {
+  echo json_encode(['error' => $err]);
+} else {
+  echo $response;
+}
 ?>
