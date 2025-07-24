@@ -1,10 +1,10 @@
+<!-- ✅ index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NeonyChat</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
     * {
       box-sizing: border-box;
@@ -78,6 +78,8 @@
     .bubble.neony {
       background-color: #2a2a2a;
       border-bottom-left-radius: 0;
+      color: magenta;
+      border: 1px solid magenta;
     }
 
     .timestamp {
@@ -125,9 +127,7 @@
   </div>
 
   <!-- Chat Box -->
-  <div class="chat-container" id="chat-box">
-    <!-- Messages will appear here -->
-  </div>
+  <div class="chat-container" id="chat-box"></div>
 
   <!-- Input Area -->
   <div class="input-container">
