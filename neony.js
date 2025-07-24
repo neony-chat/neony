@@ -13,6 +13,18 @@ const chatBox = document.getElementById("chat-box");
 const userInput = document.getElementById("user-input");
 const sendBtn = document.getElementById("send-btn");
 
+// Load old chat messages
+window.addEventListener("load", () => {
+  db.ref("messages").once("value", snapshot => {
+    const msgs = snapshot.val();
+    if (msgs) {
+      Object.values(msgs).forEach(({ sender, text }) => {
+        addMessage(sender, text);
+      });
+    }
+  });
+});
+
 // Send user message
 sendBtn.addEventListener("click", () => {
   const text = userInput.value.trim();
@@ -21,6 +33,13 @@ sendBtn.addEventListener("click", () => {
     userInput.value = "";
     saveMessage("user", text);
     getNeonyReply(text);
+  }
+});
+
+// Enter key sends message
+userInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    sendBtn.click();
   }
 });
 
