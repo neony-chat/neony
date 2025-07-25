@@ -1,3 +1,4 @@
+<!-- ✅ index.html - FINAL -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -118,26 +119,20 @@
   </style>
 </head>
 <body>
-
-  <!-- Header with Avatar -->
   <div class="header">
     <img src="avatar.png" alt="Neony" />
     <h1>Neony</h1>
   </div>
 
-  <!-- Chat Box -->
   <div class="chat-container" id="chat-box"></div>
 
-  <!-- Input Area -->
   <div class="input-container">
-    <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" />
-    <button id="send-btn">Send</button>
+    <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" onkeydown="if(event.key==='Enter'){handleSend();}" />
+    <button id="send-btn" onclick="handleSend()">Send</button>
   </div>
 
-  <!-- Firebase & Neony Script -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="neony.js"></script>
-
 </body>
 </html>
