@@ -1,9 +1,9 @@
-// ✅ neony.js - Final Version (linked to FileManager backend)
+// ✅ neony.js - Final Version (linked to InfinityFree backend)
 function appendMessage(content, sender) {
   const chatBox = document.getElementById('chat-box');
   const messageDiv = document.createElement('div');
   messageDiv.className = `message ${sender}`;
-  
+
   const bubble = document.createElement('div');
   bubble.className = `bubble ${sender}`;
   bubble.textContent = content;
@@ -26,7 +26,7 @@ function handleSend() {
   appendMessage(userMessage, 'user');
   input.value = '';
 
-  fetch('https://neonychat.filemanager.ai/chatgpt.php', {
+  fetch('https://neonychat.free.nf/chatgpt.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userMessage })
